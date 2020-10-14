@@ -50,14 +50,76 @@ function chooseRole() {
     });  
 };
 function updateFunc() {
-    connection.query("SELECT * FROM employee", function(err, res) {
+    connection.query("SELECT e.first_name, e.last_name, r.title FROM employee AS e LEFT JOIN role AS r ON e.role_id = r.id;", function(err, res) {
+        console.log(res)
+        
+        let updateRolesArray = []
+        for (let i = 0; i < res.length; i++) {
+            updateRolesArray.push(res[i].title)
+        }
         if (err) throw err;
         inquirer
-            .prompt({
-                name: "updateWhich",
-                type: "list",
-                message: "Select what employee role you would like to update.",
-                choices: res
+            .prompt([
+                {
+                    name: "updateWhich",
+                    type: "list",
+                    message: "Select what employee role you would like to update.",
+                    choices: updateRolesArray
+                }
+            ])
+            .then((result) => {
+                let updateEmployeeArray = []
+                    for (let j = 0; j < updateRolesArray.length; j++) {
+                        if (res[j].title === result.updateWhich) {
+                            updateEmployeeArray.push(res[j].last_name)
+                        }
+                    }
+                    console.log(updateEmployeeArray)
+                    function updateEmployee() {
+                        inquirer
+                            .prompt([
+                                {
+                                    name: "selectName",
+                                    type: "list",
+                                    message: "Select the lastname of the employee you would like to update.",
+                                    choices: updateEmployeeArray
+                                },
+                                {
+                                    name: "enterInfoFirstName",
+                                    type: "input",
+                                    message: "Enter the updated first name."
+                                },
+                                {
+                                    name: "enterInfoLastName",
+                                    type: "input",
+                                    message: "Enter the updated last name."
+                                },
+                                {
+                                    name: "hasManager",
+                                    type: "list",
+                                    message: "Does the employee have a manager still?",
+                                    choices: ["Yes", "No"]
+                                }
+                            ])
+                            .then((response) => {
+                                let managerID;
+                                if (response.hasManager === "No") {
+                                    managerID = null
+                                }
+                                connection.query("UPDATE employee SET ? WHERE ?",
+                                [{
+                                    first_name: response.enterInfoFirstName,
+                                    last_name: response.enterInfoLastName,
+                                    manager_id: managerID
+                                },
+                                {
+                                    last_name: response.selectName
+                                }])
+                                chooseRole();
+                            })
+                    }
+                    updateEmployee()
+                
             })
     })
 
@@ -96,7 +158,7 @@ function viewDepartmentFunc() {
         if (err) throw err;
         if (res === []) {
             console.log("There are no departments to view.")
-        }else {
+        } else {
             console.log(res);
             chooseRole();
         };
@@ -107,7 +169,7 @@ function viewRolesFunc() {
         if (err) throw err;
         if (res === []) {
             console.log("There are no roles to view.")
-        }else {
+        } else {
             console.log(res);
             chooseRole();
         };
@@ -197,6 +259,9 @@ function addEmployeeFunc() {
                         case "No": 
                             hasManager = null
                             break;
+                        
+                        // case "Yes": 
+                        // hasManager = 
                     }
                     for (let i = 0; i < roleArray.length; i++) {
                         if (res[i].title === response.whichrole) {
