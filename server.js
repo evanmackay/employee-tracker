@@ -1,6 +1,7 @@
+// npm's to require
 const mysql = require('mysql');
 const inquirer = require('inquirer');
-
+// creating mysql connection to db
 var connection = mysql.createConnection(
     {
         host: "localhost",
@@ -12,11 +13,12 @@ var connection = mysql.createConnection(
         password: "password",
         database: "employee_DB"
     });
+    // establishing connection and running initial function to ask questions
 connection.connect(function(err) {
     if (err) throw err;
     chooseRole();
 });
-
+// initial inquirer questions
 function chooseRole() {
   inquirer
     .prompt({
@@ -49,8 +51,9 @@ function chooseRole() {
         }
     });  
 };
+// function to update specific roles for employees in the selected role
 function updateFunc() {
-    connection.query("SELECT e.first_name, e.last_name, r.title FROM employee AS e LEFT JOIN role AS r ON e.role_id = r.id;", function(err, res) {
+    connection.query("SELECT DISTINCT e.first_name, e.last_name, r.title, r.id FROM employee AS e LEFT JOIN role AS r ON e.role_id = r.id;", function(err, res) {
         let updateRolesArray = []
         for (let i = 0; i < res.length; i++) {
             updateRolesArray.push(res[i].title)
@@ -82,32 +85,22 @@ function updateFunc() {
                                     choices: updateEmployeeArray
                                 },
                                 {
-                                    name: "enterInfoFirstName",
-                                    type: "input",
-                                    message: "Enter the updated first name."
-                                },
-                                {
-                                    name: "enterInfoLastName",
-                                    type: "input",
-                                    message: "Enter the updated last name."
-                                },
-                                {
-                                    name: "hasManager",
+                                    name: "selectNewRole",
                                     type: "list",
-                                    message: "Does the employee have a manager still?",
-                                    choices: ["Yes", "No"]
+                                    message: "Select the role you would like this employee to have.",
+                                    choices: updateRolesArray
                                 }
                             ])
                             .then((response) => {
-                                let managerID;
-                                if (response.hasManager === "No") {
-                                    managerID = null
+                                let roleID;
+                                for (let k = 0; k < updateRolesArray.length; k++) {
+                                    if (updateRolesArray[k] === response.selectNewRole) {
+                                        roleID = res[k].id
+                                    }
                                 }
                                 connection.query("UPDATE employee SET ? WHERE ?",
                                 [{
-                                    first_name: response.enterInfoFirstName,
-                                    last_name: response.enterInfoLastName,
-                                    manager_id: managerID
+                                    role_id: roleID
                                 },
                                 {
                                     last_name: response.selectName
@@ -121,7 +114,7 @@ function updateFunc() {
     });
 
 };
-
+// function to view departments roles or employees
 function viewFunc() {
     inquirer   
         .prompt({
@@ -183,6 +176,7 @@ function viewEmployeesFunc() {
         };
     });
 };
+// function that adds departments roles and employees to mysql db
 function addFunc() {
     inquirer
         .prompt({
