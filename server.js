@@ -49,6 +49,20 @@ function chooseRole() {
         }
     });  
 };
+function updateFunc() {
+    connection.query("SELECT * FROM employee", function(err, res) {
+        if (err) throw err;
+        inquirer
+            .prompt({
+                name: "updateWhich",
+                type: "list",
+                message: "Select what employee role you would like to update.",
+                choices: res
+            })
+    })
+
+};
+
 function viewFunc() {
     inquirer   
         .prompt({
@@ -80,25 +94,34 @@ function viewFunc() {
 function viewDepartmentFunc() {
     connection.query("SELECT * FROM department", function(err, res) {
         if (err) throw err;
-        if (res === []) {console.log("There are no departments to view.")};
-        console.log(res);
-        chooseRole();
+        if (res === []) {
+            console.log("There are no departments to view.")
+        }else {
+            console.log(res);
+            chooseRole();
+        };
     });
 };
 function viewRolesFunc() {
     connection.query("SELECT * FROM role", function(err, res) {
         if (err) throw err;
-        if (res === []) {console.log("There are no roles to view.")};
-        console.log(res);
-        chooseRole();
+        if (res === []) {
+            console.log("There are no roles to view.")
+        }else {
+            console.log(res);
+            chooseRole();
+        };
     });
 };
 function viewEmployeesFunc() {
     connection.query("SELECT * FROM employee", function(err, res) {
         if (err) throw err;
-        if (res === []) {console.log("There are no employees to view.")};
-        console.log(res);
-        chooseRole();
+        if (res === []) {
+            console.log("There are no employees to view.")
+        } else {
+            console.log(res);
+            chooseRole();
+        };
     });
 };
 function addFunc() {
@@ -129,62 +152,14 @@ function addFunc() {
             }
         });
 };
-function hasManagerFunc() {
-    inquirer
-        .prompt([
-            {
-                name: "employeeFirstName",
-                type: "input",
-                message: "What is the first name of the employee?"
-            },
-            {
-                name: "employeeLastName",
-                type: "input",
-                message: "What is the last name of the employee?"
-            },
-            {
-                name: "managerid",
-                type: "input",
-                message: "What is the manager id for this employee?"
-            }
-        ])
-}
-function noManagerFunc() {
-    inquirer
-        .prompt([
-            {
-                name: "employeeFirstName",
-                type: "input",
-                message: "What is the first name of the employee?"
-            },
-            {
-                name: "employeeLastName",
-                type: "input",
-                message: "What is the last name of the employee?"
-            }
-        ])
-        .then((result) => {
-            connection.query(
-                "INSERT INTO employee SET ?",
-                {
-                    id: result.id,
-                    first_name: result.employeeFirstName,
-                    last_name: result.employeeLastName,
-                    role_id: result.role_id,
-                    manager_id: null
-                }
-            )
-        })
-}
+
 function addEmployeeFunc() {
     connection.query(
         "SELECT * FROM role",
         function(err, res) {
-            let roleID;
             let roleArray = []
             for(let i = 0; i < res.length; i++) {
                 roleArray.push(res[i].title)
-                roleID = res[i].id
             }
             if (err) throw err;
             console.log(res)
@@ -201,14 +176,42 @@ function addEmployeeFunc() {
                         type: "list",
                         message: "Does this employee have a manager?",
                         choices: ["Yes", "No"]
+                    },
+                    {
+                        name: "employeeFirstName",
+                        type: "input",
+                        message: "What is the first name of the employee?"
+                    },
+                    {
+                        name: "employeeLastName",
+                        type: "input",
+                        message: "What is the last name of the employee?"
                     }
+                    
                 ])
                 .then((response) => {
-                    if (response.manager === "No") {
-                        noManagerFunc()
-                    } else {
-                        hasManagerFunc()
+                    let roleID;
+                    let hasManager;
+                    console.log(res)
+                    switch (response.manager) {
+                        case "No": 
+                            hasManager = null
+                            break;
+                    }
+                    for (let i = 0; i < roleArray.length; i++) {
+                        if (res[i].title === response.whichrole) {
+                            roleID = res[i].id
+                        }
                     };
+                    connection.query("INSERT INTO employee SET ?",
+                    {
+                        id: response.id,
+                        first_name: response.employeeFirstName + "",
+                        last_name: response.employeeLastName + "",
+                        role_id: roleID,
+                        manager_id: hasManager
+                    })
+                    chooseRole()
                 })
         }
     )
@@ -217,7 +220,7 @@ function addRoleFunc() {
     connection.query(
         "SELECT * FROM department",
         function(err, res) {
-            if (err) throw err
+            if (err) throw err;
             console.log(res)
             inquirer
                 .prompt([
@@ -242,14 +245,17 @@ function addRoleFunc() {
                     let departmentID;
                     console.log(res)
                     for (let i = 0; i < res.length; i++) {
-                        departmentID = res[i].id
+                        if (res[i].name === result.whichdepartment) {
+                            departmentID = res[i].id
+                        }
                     };
                     console.log(result);
+                    console.log(departmentID)
                     connection.query(
                         "INSERT INTO role SET ?",
                         {
                             id: result.id,
-                            title: JSON.stringify(result.title),
+                            title: result.title + "",
                             salary: result.salary,
                             department_id: departmentID
                         },
@@ -257,7 +263,7 @@ function addRoleFunc() {
                             if (err) throw err
                         }
                     );
-                    console.log(result)
+                    // console.log(result)
                     chooseRole()
                 });
             });
@@ -276,7 +282,7 @@ function addDepartmentFunc() {
                 "INSERT INTO department SET ?",
                 {
                     id: res.id,
-                    name: JSON.stringify(res.department)
+                    name: res.department + ""
                 },
                 function(err, res) {
                     if (err) throw err
