@@ -47,6 +47,7 @@ function chooseRole() {
                 break;
 
             case "Exit":
+                console.log("Connection ended.")
                 connection.end();
         }
     });  
