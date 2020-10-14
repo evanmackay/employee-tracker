@@ -51,8 +51,6 @@ function chooseRole() {
 };
 function updateFunc() {
     connection.query("SELECT e.first_name, e.last_name, r.title FROM employee AS e LEFT JOIN role AS r ON e.role_id = r.id;", function(err, res) {
-        console.log(res)
-        
         let updateRolesArray = []
         for (let i = 0; i < res.length; i++) {
             updateRolesArray.push(res[i].title)
@@ -74,7 +72,6 @@ function updateFunc() {
                             updateEmployeeArray.push(res[j].last_name)
                         }
                     }
-                    console.log(updateEmployeeArray)
                     function updateEmployee() {
                         inquirer
                             .prompt([
@@ -116,12 +113,12 @@ function updateFunc() {
                                     last_name: response.selectName
                                 }])
                                 chooseRole();
-                            })
+                            });
                     }
                     updateEmployee()
                 
-            })
-    })
+            });
+    });
 
 };
 
@@ -224,7 +221,6 @@ function addEmployeeFunc() {
                 roleArray.push(res[i].title)
             }
             if (err) throw err;
-            console.log(res)
             inquirer
                 .prompt([
                     {
@@ -254,7 +250,6 @@ function addEmployeeFunc() {
                 .then((response) => {
                     let roleID;
                     let hasManager;
-                    console.log(res)
                     switch (response.manager) {
                         case "No": 
                             hasManager = null
@@ -276,17 +271,16 @@ function addEmployeeFunc() {
                         role_id: roleID,
                         manager_id: hasManager
                     })
-                    chooseRole()
-                })
+                    chooseRole();
+                });
         }
-    )
+    );
 }
 function addRoleFunc() {
     connection.query(
         "SELECT * FROM department",
         function(err, res) {
             if (err) throw err;
-            console.log(res)
             inquirer
                 .prompt([
                     {
@@ -308,14 +302,11 @@ function addRoleFunc() {
                 ])
                 .then((result) => {
                     let departmentID;
-                    console.log(res)
                     for (let i = 0; i < res.length; i++) {
                         if (res[i].name === result.whichdepartment) {
                             departmentID = res[i].id
                         }
                     };
-                    console.log(result);
-                    console.log(departmentID)
                     connection.query(
                         "INSERT INTO role SET ?",
                         {
@@ -328,8 +319,7 @@ function addRoleFunc() {
                             if (err) throw err
                         }
                     );
-                    // console.log(result)
-                    chooseRole()
+                    chooseRole();
                 });
             });
         
@@ -353,7 +343,6 @@ function addDepartmentFunc() {
                     if (err) throw err
                 }
             );
-            console.log(res)
-            chooseRole()
+            chooseRole();
         });
 };
