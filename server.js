@@ -1,6 +1,7 @@
 // npm's to require
 const mysql = require('mysql');
 const inquirer = require('inquirer');
+const cTable = require('console.table');
 // creating mysql connection to db
 var connection = mysql.createConnection(
     {
@@ -150,7 +151,7 @@ function viewDepartmentFunc() {
         if (res === []) {
             console.log("There are no departments to view.")
         } else {
-            console.log(res);
+            console.table(res);
             chooseRole();
         };
     });
@@ -161,7 +162,7 @@ function viewRolesFunc() {
         if (res === []) {
             console.log("There are no roles to view.")
         } else {
-            console.log(res);
+            console.table(res);
             chooseRole();
         };
     });
@@ -172,7 +173,7 @@ function viewEmployeesFunc() {
         if (res === []) {
             console.log("There are no employees to view.")
         } else {
-            console.log(res);
+            console.table(res);
             chooseRole();
         };
     });
