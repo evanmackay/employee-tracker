@@ -1,1 +1,3 @@
-# employee-tracker
+# Employee Tracker
+
+This is a node.js application that works with MySQL to create, view, and update an employee database. The user is given options to select using inquirer to select their desired use for the application. They can select whether they would like to create a new department, role, or employee, whether they would like to view a department, role, or employee, or whether they would like to update an employee role. A video demonstrating the functionality can be viewed in the repository for this application.
