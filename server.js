@@ -109,7 +109,7 @@ function updateFunc() {
                                 chooseRole();
                             });
                     }
-                    updateEmployee()
+                    updateEmployee();
                 
             });
     });
@@ -225,12 +225,6 @@ function addEmployeeFunc() {
                         choices: roleArray
                     },
                     {
-                        name: "manager",
-                        type: "list",
-                        message: "Does this employee have a manager?",
-                        choices: ["Yes", "No"]
-                    },
-                    {
                         name: "employeeFirstName",
                         type: "input",
                         message: "What is the first name of the employee?"
@@ -244,19 +238,12 @@ function addEmployeeFunc() {
                 ])
                 .then((response) => {
                     let roleID;
-                    let hasManager;
-                    switch (response.manager) {
-                        case "No": 
-                            hasManager = null
-                            break;
-                        
-                        // case "Yes": 
-                        // hasManager = 
-                    }
+                    let hasManager = null;
+                    
                     for (let i = 0; i < roleArray.length; i++) {
                         if (res[i].title === response.whichrole) {
                             roleID = res[i].id
-                        }
+                        };
                     };
                     connection.query("INSERT INTO employee SET ?",
                     {
